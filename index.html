@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Dmytro Hrabchak</title>
+  <!-- #region style -->
+  <style>
+    body {
+      font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+      margin: 0 auto;
+      max-width: 800px;
+      background-color: #e5e6e5;
+      color: #362e2e;
+    }
+
+    section {
+      padding: 20px;
+      border: 3px solid #ced2ed;
+      border-radius: 10px;
+      background-color: #ffffff;
+      margin-bottom: 30px;
+    }
+
+    h1 {
+      font-size: 36px;
+      margin-bottom: 5px;
+      text-align: center;
+    }
+
+    h2 {
+      font-size: 20px;
+      border-bottom: 2px solid #ccc;
+      padding-bottom: 5px;
+      text-transform: uppercase;
+    }
+
+    p,
+    li,
+    a {
+      font-size: 18px;
+      line-height: 1.5;
+    }
+
+    ul {
+      padding-left: 15px;
+    }
+
+    a {
+      text-decoration: none;
+    }
+
+    footer {
+      padding: 10px;
+      border-top: 1px solid #ccc;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+
+    .modal form {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      max-width: 500px;
+      width: 90%;
+      box-sizing: border-box;
+      position: relative;
+    }
+
+    .modal input,
+    .modal textarea {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 10px;
+      box-sizing: border-box;
+    }
+
+    .modal textarea {
+      resize: none;
+    }
+
+    .modal button[type="submit"] {
+      padding: 8px 16px;
+    }
+
+    .close-modal {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      background: none;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      color: #333;
+    }
+
+    .theme-switcher {
+      position: fixed;
+      top: 15px;
+      right: 15px;
+      background: #fff;
+      color: #000;
+      padding: 10px 16px;
+      border-radius: 30px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: bold;
+      z-index: 9999;
+    }
+
+    .theme-switcher.dark {
+      background: #2e2e2e;
+      color: #f0f0f0;
+    }
+  </style>
+  <!-- #endregion -->
+</head>
+
+<body>
+  <!-- #region html structure -->
+  <div class="theme-switcher" id="theme-switcher">
+    <span id="theme-label">Theme: Light</span>
+    <input type="checkbox" id="theme-toggle">
+  </div>
+
+  <h1>Dmytro Hrabchak</h1>
+  <h2>Currently: Surviving University</h2>
+
+  <section>
+    <h2>Objective</h2>
+    <p>Secure a position where I can look busy, drink coffee, and occasionally write code that works after the 27th try.
+    </p>
+  </section>
+
+  <section>
+    <h2>Contact</h2>
+    <ul>
+      <li><a href="mailto:dmytro.hrabchak.kb.2022@lpnu.ua">dmytro.hrabchak.kb.2022@lpnu.ua</a></li>
+      <li>Phone: probably out of battery</li>
+      <li>Location: somewhere between the bed and the Wi-Fi router</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Education</h2>
+    <p>Lviv Polytechnic National University</p>
+  </section>
+
+  <section>
+    <h2>Skills</h2>
+    <ul>
+      <li>Programming — I installed VS Code once</li>
+      <li>Networking — I set up my home Wi-Fi</li>
+      <li>HTML — copy, paste, pray</li>
+      <li>CSS — when it works, it works</li>
+      <li>JavaScript — why is this undefined?</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Experience</h2>
+    <ul>
+      <li>2022-now: Googling error messages like a boss</li>
+      <li>2023: Accidentally deleted system32 — never again</li>
+      <li>2024: Submitted lab 3 minutes before the deadline and felt alive</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Comments from previous employers</h2>
+    <ul id="comments-list"></ul>
+  </section>
+
+  <footer id="footer-info"></footer>
+
+  <div class="modal">
+    <form action="https://formspree.io/f/mpwdyzjd" method="POST">
+      <button type="button" class="close-modal">&times;</button>
+      <h2>Feedback</h2>
+      <input type="text" name="name" placeholder="Name" required>
+      <input type="email" name="email" placeholder="Email" required>
+      <input type="tel" name="phone" placeholder="Phone" required>
+      <textarea name="message" placeholder="Your message..." required></textarea>
+      <button type="submit">Send</button>
+    </form>
+  </div>
+  <!-- #endregion -->
+
+  <!-- #region script -->
+  <script>
+    // browser info
+    const osInfo = navigator.platform;
+    const browserInfo = navigator.userAgent;
+
+    localStorage.setItem('os', osInfo);
+    localStorage.setItem('browser', browserInfo);
+
+    document.getElementById('footer-info').innerHTML = `
+    <strong>OS:</strong> ${localStorage.getItem('os')}<br>
+    <strong>Browser:</strong> ${localStorage.getItem('browser')}
+  `;
+
+    // comments
+    fetch('https://jsonplaceholder.typicode.com/posts/5/comments')
+      .then(res => res.json())
+      .then(comments => {
+        const list = document.getElementById('comments-list');
+        comments.forEach(comment => {
+          const li = document.createElement('li');
+          li.textContent = `${comment.name}: ${comment.body}`;
+          list.appendChild(li);
+        });
+      });
+
+    // modal after 60s
+    setTimeout(() => {
+      document.querySelector('.modal').style.display = 'flex';
+    }, 60000);
+
+    document.querySelector('.close-modal').addEventListener('click', () => {
+      document.querySelector('.modal').style.display = 'none';
+    });
+
+    // theme
+    function applyTheme(isNight) {
+      document.body.style.backgroundColor = isNight ? '#1e1e1e' : '#e5e6e5';
+      document.body.style.color = isNight ? '#f0f0f0' : '#362e2e';
+
+      document.querySelectorAll('section').forEach(section => {
+        section.style.backgroundColor = isNight ? '#2e2e2e' : '#ffffff';
+        section.style.color = isNight ? '#f0f0f0' : '#000000';
+      });
+
+      const switcher = document.getElementById('theme-switcher');
+      switcher.classList.toggle('dark', isNight);
+
+      document.getElementById('theme-label').textContent = isNight ? 'Theme: Dark' : 'Theme: Light';
+    }
+
+    const toggle = document.getElementById('theme-toggle');
+    toggle.addEventListener('change', () => {
+      const isNight = toggle.checked;
+      applyTheme(isNight);
+      localStorage.setItem('theme', isNight ? 'night' : 'day');
+    });
+
+    window.addEventListener('load', () => {
+      const hour = new Date().getHours();
+      const saved = localStorage.getItem('theme');
+      let night = saved ? saved === 'night' : (hour < 7 || hour >= 21);
+
+      toggle.checked = night;
+      applyTheme(night);
+    });
+  </script>
+  <!-- #endregion -->
+</body>
+
+</html>
